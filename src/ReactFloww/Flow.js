@@ -28,7 +28,7 @@ const OverviewFlow = () => {
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
-
+  console.log("test");
   const createNodes = ({
     gptResponse,
     nodeId,
