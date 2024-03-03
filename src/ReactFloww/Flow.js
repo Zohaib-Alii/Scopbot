@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ReactFlow, {
   addEdge,
   MiniMap,
@@ -18,19 +18,24 @@ import {
 } from "./initial-elements";
 import TextUpdaterNode from "./utils";
 import { handleGptApi } from "./gptApi";
+import { useSelector } from "react-redux";
 
 const onInit = (reactFlowInstance) =>
   console.log("flow loaded:", reactFlowInstance);
 // const nodeTypes = { textUpdater: () => <TextUpdaterNode /> };
 let itration = 0;
 const OverviewFlow = () => {
+  const user = useSelector((state) => state.user);
+  console.log("user", user);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const [inputData, setInputData] = useState("");
+  // const [inputData, setInputData] = useState("");
+  let inputData = "kk";
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
+
   let otherNode = [
     {
       id: "node-2",
@@ -100,7 +105,6 @@ const OverviewFlow = () => {
     nodeId,
     clickedNodePosition = { x: 0 },
   }) => {
-    debugger;
     const newNodes = [];
     const newEdges = [];
     debugger;
@@ -123,10 +127,13 @@ const OverviewFlow = () => {
       };
 
       const newEdge = {
-        id: `${ind}-edge`, // Assigning a unique ID for each edge
+        // id: `${ind}-edge`, // Assigning a unique ID for each edge
+        id: `node-${nodesLength > 1 ? nodesLength + ind : ind + 1}`,
         source: nodeId,
         target: `node-${nodesLength > 1 ? nodesLength + ind : ind + 1}`,
         sourceHandle: "b",
+        // type: "smoothstep",
+        type: "step",
       };
 
       newNodes.push(newNode);
@@ -146,32 +153,29 @@ const OverviewFlow = () => {
     debugger;
     console.log("node", node);
     // createNodes(newtext, node.id);
-    setInputData(newtext);
+    // setInputData(newtext);
   };
-  console.log("nodes", nodes, "edges", edges);
-  const apiHandler = async ({ nodeId = "node-0" }) => {
+
+  const apiHandler = async ({ inputData, nodeId }) => {
     const res = await handleGptApi(inputData);
     const updatedRes = JSON.parse(res).epics;
     createNodes({ gptResponse: updatedRes, nodeId });
   };
+
   return (
     <>
       <button onClick={apiHandler}>test gpt</button>
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
+        // onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         onInit={onInit}
         fitView
         nodeTypes={{
           textUpdater: (node) => (
-            <TextUpdaterNode
-              onTextChange={handleTextChange}
-              node={node}
-              inputData={inputData}
-            />
+            <TextUpdaterNode node={node} apiHandler={apiHandler} />
           ),
         }}
         attributionPosition="top-right"

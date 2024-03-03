@@ -1,7 +1,9 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { Handle, Position } from "reactflow";
 import "./styles.css";
 import { handleGptApi } from "./gptApi";
+import { useDispatch } from "react-redux";
+import { setInputValue, setSelectedNode } from "../models/user";
 const handleStyle = { left: 10 };
 
 function TextUpdaterNode({
@@ -9,17 +11,29 @@ function TextUpdaterNode({
   isConnectable,
   onTextChange,
   node,
-  inputData,
+  apiHandler,
 }) {
-  const onChange = useCallback(
-    (evt) => {
-      onTextChange(evt.target.value, node);
-    },
-    [onTextChange]
-  );
+  const [inputData, setInputData] = useState("");
+  const [selectedNode, setSelectedNode] = useState("");
+  const dispatch = useDispatch();
+  // const onChange = useCallback(
+  //   (evt) => {
+  //     // onTextChange(evt.target.value, node);
+  //     debugger;
+  //     dispatch(setInputValue({ inputData: evt.target.value, node }));
+  //   },
+  //   [onTextChange]
+  // );
   // console.log("data", data);
-  const test = () => {
+  const handleApiCall = async () => {
     console.log("test");
+    // dispatch(setInputValue(inputData));
+    // dispatch(setSelectedNode(selectedNode));
+    const res = await handleGptApi(inputData);
+    console.log("res", res);
+  };
+  const handleTextChange = (evt) => {
+    setInputData(evt.target.value);
   };
   return (
     <div>
@@ -31,21 +45,24 @@ function TextUpdaterNode({
           isConnectable={isConnectable}
         />
         {node
-          ? node?.data?.value.map((val) => (
-              <div>
+          ? node?.data?.value?.map((val, ind) => (
+              <div key={ind}>
                 <textarea
                   rows={3}
                   // cols={20}
                   key={node?.id}
                   defaultValue={val || "placeholder"}
                   name="text"
-                  onChange={onChange}
+                  // onChange={onChange}
+                  onChange={handleTextChange}
                   className="nodrag"
                 />
               </div>
             ))
           : null}
-        <button onClick={test}>test gpt</button>
+        <button onClick={() => apiHandler({ inputData, nodeId: node.id })}>
+          Generate Response
+        </button>
         {/* <Handle
         type="source"
         position={Position.Bottom}
