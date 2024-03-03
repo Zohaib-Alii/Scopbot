@@ -3,7 +3,7 @@ export const nodes = [
     id: "node-0",
     type: "textUpdater",
     position: { x: 0, y: 0 },
-    data: { heading: "first Heading", value: ["task managemnt system "] },
+    data: { heading: "Scope Bot", value: ["task managemnt system "] },
   },
 ];
 export const edges = [
