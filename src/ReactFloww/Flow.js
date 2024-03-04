@@ -28,7 +28,6 @@ const OverviewFlow = () => {
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
   );
-  console.log("test");
   const createNodes = ({
     gptResponse,
     nodeId,
@@ -38,18 +37,18 @@ const OverviewFlow = () => {
     const newNodes = [];
     const newEdges = [];
     // Calculate the x-coordinate for the next node with an increment of 300 pixels
-    let nextX = clickedNodePosition.x - 300; // Start with 300 pixels to the right of the clicked node
+    let nextX = clickedNodePosition.x - 400; // Start with 300 pixels to the right of the clicked node
     let nodesLength = nodes.length;
     let gptUpdatedRes = wrapInArray(gptResponse);
     gptUpdatedRes.forEach((res, ind) => {
-      const length = nodes.length + 1;
+      const length = nodes.length + 3;
       const newNode = {
         id: `node-${nodesLength > 1 ? nodesLength + ind : ind + 1}`,
         type: "textUpdater",
         targetPosition: "top",
-        position: { x: nextX + 300 * ind, y: Number(`${length}00`) }, // Calculate x-coordinate with an increment of 300 pixels
+        position: { x: nextX + 400 * ind, y: Number(`${length + itration}00`) }, // Calculate x-coordinate with an increment of 300 pixels
         data: {
-          value: res.content,
+          value: wrapInArray(res.content),
           heading: res.heading,
         },
       };
@@ -61,6 +60,8 @@ const OverviewFlow = () => {
         target: `node-${nodesLength > 1 ? nodesLength + ind : ind + 1}`,
         sourceHandle: "b",
         type: "smoothstep",
+        animated: true,
+        style: { stroke: "brown" },
         // type: "step",
       };
 
@@ -72,59 +73,58 @@ const OverviewFlow = () => {
 
     const updatedNodes = [...nodes, ...newNodes];
     const updatedEdges = [...edges, ...newEdges];
-
+    console.log("updatedNodes", updatedNodes, updatedEdges);
     setNodes(updatedNodes);
     setEdges(updatedEdges);
   };
 
   const apiHandler = async ({ inputData, nodeId }) => {
     // update the first node content
+    console.log("api handler click");
     if (nodeId === "node-0" && inputData) {
       nodes[0].data.value = [inputData];
       setNodes([...nodes]);
     }
     const res = await handleGptApi(inputData);
-    const updatedRes = JSON.parse(res).epics;
+    const updatedRes = JSON.parse(res).epics || JSON.parse(res);
     createNodes({ gptResponse: updatedRes, nodeId });
   };
 
   return (
-    <>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        // onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        onInit={onInit}
-        fitView
-        nodeTypes={{
-          textUpdater: (node) => (
-            <TextUpdaterNode node={node} apiHandler={apiHandler} />
-          ),
+    <ReactFlow
+      nodes={nodes}
+      edges={edges}
+      // onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      onConnect={onConnect}
+      onInit={onInit}
+      fitView
+      nodeTypes={{
+        textUpdater: (node) => (
+          <TextUpdaterNode node={node} apiHandler={apiHandler} />
+        ),
+      }}
+      attributionPosition="top-right"
+    >
+      <MiniMap
+        nodeStrokeColor={(n) => {
+          if (n.style?.background) return n.style.background;
+          if (n.type === "input") return "#0041d0";
+          if (n.type === "output") return "#ff0072";
+          if (n.type === "default") return "#1a192b";
+
+          return "#eee";
         }}
-        attributionPosition="top-right"
-      >
-        <MiniMap
-          nodeStrokeColor={(n) => {
-            if (n.style?.background) return n.style.background;
-            if (n.type === "input") return "#0041d0";
-            if (n.type === "output") return "#ff0072";
-            if (n.type === "default") return "#1a192b";
+        nodeColor={(n) => {
+          if (n.style?.background) return n.style.background;
 
-            return "#eee";
-          }}
-          nodeColor={(n) => {
-            if (n.style?.background) return n.style.background;
-
-            return "#F1F0EE";
-          }}
-          nodeBorderRadius={2}
-        />
-        <Controls />
-        <Background color="#aaa" gap={20} />
-      </ReactFlow>
-    </>
+          return "#F1F0EE";
+        }}
+        nodeBorderRadius={2}
+      />
+      <Controls />
+      <Background color="#aaa" gap={20} />
+    </ReactFlow>
   );
 };
 

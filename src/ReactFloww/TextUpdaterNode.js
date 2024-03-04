@@ -5,13 +5,14 @@ import { Button, Input } from "antd";
 
 function TextUpdaterNode({ isConnectable, node, apiHandler }) {
   const [inputData, setInputData] = useState("");
+  // const [loading, setLoading] = useState(false);
 
   const handleTextChange = (evt) => {
     setInputData(evt.target.value);
   };
   const firstNode = node.id == "node-0";
   return (
-    <div>
+    <div className="main">
       <div className="main-headings">{node?.data?.heading}</div>
       <div className="text-updater-node wrapper">
         {!firstNode && (
@@ -38,7 +39,7 @@ function TextUpdaterNode({ isConnectable, node, apiHandler }) {
         <Button
           key={node.id}
           onClick={() => apiHandler({ inputData, nodeId: node.id })}
-          // loading={true}
+          // loading={loading}
         >
           Generate Response
         </Button>
