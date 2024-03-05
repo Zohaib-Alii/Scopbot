@@ -55,7 +55,7 @@ function TextUpdaterNode({
                 inputData,
                 node,
                 heading: node?.data?.heading,
-                inputType: firstNode ? "Epic" : scope[findNode.itration],
+                scope: firstNode ? "Epic" : scope[findNode.itration],
               })
             }
             loading={loading}

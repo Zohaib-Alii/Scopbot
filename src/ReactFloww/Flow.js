@@ -16,7 +16,8 @@ import {
 } from "./initial-elements";
 import { handleGptApi } from "./gptApi";
 import TextUpdaterNode from "./TextUpdaterNode";
-import { wrapInArray } from "./utils";
+import { handleGenrateSrs, wrapInArray } from "./utils";
+import { Button } from "antd";
 const onInit = (reactFlowInstance) =>
   console.log("flow loaded:", reactFlowInstance);
 // const nodeTypes = { textUpdater: () => <TextUpdaterNode /> };
@@ -40,8 +41,8 @@ const OverviewFlow = () => {
     // Calculate the x-coordinate for the next node with an increment of 300 pixels
     let nextX = clickedNodePosition.x - 400; // Start with 300 pixels to the right of the clicked node
     let nodesLength = nodes.length;
-    let gptUpdatedRes = wrapInArray(gptResponse);
-    gptUpdatedRes.forEach((res, ind) => {
+    // let gptUpdatedRes = wrapInArray(gptResponse);
+    gptResponse.details.forEach((res, ind) => {
       const length = nodes.length + 3;
       const newNode = {
         itration: itration + 1,
@@ -64,9 +65,7 @@ const OverviewFlow = () => {
         type: "smoothstep",
         animated: true,
         style: { stroke: "brown" },
-        // type: "step",.
       };
-
       newNodes.push(newNode);
       newEdges.push(newEdge);
     });
@@ -81,8 +80,7 @@ const OverviewFlow = () => {
     setLoading(false);
   };
 
-  const apiHandler = async ({ inputData, node, heading, inputType }) => {
-    debugger;
+  const apiHandler = async ({ inputData, node, scope }) => {
     const { id: nodeId } = node;
     setLoading(true);
     let firstNode = nodeId === "node-0";
@@ -97,7 +95,7 @@ const OverviewFlow = () => {
       inputData,
       firstNode,
       selectedNode: node,
-      inputType,
+      scope,
     });
     const updatedRes = JSON.parse(res).epics || JSON.parse(res);
     createNodes({ gptResponse: updatedRes, nodeId });
@@ -125,7 +123,13 @@ const OverviewFlow = () => {
         }}
         attributionPosition="top-right"
       >
-        <img src={img} />
+        <div className="image-container">
+          <img
+            className="image"
+            src={img}
+            // style={{ display: "flex", justifyContent: "center" }}
+          />
+        </div>
 
         <MiniMap
           nodeStrokeColor={(n) => {
@@ -146,6 +150,7 @@ const OverviewFlow = () => {
         <Controls />
         <Background color="#aaa" gap={20} />
       </ReactFlow>
+      <Button onClick={handleGenrateSrs}>Generate SRS</Button>
     </>
   );
 };
