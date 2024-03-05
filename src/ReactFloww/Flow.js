@@ -8,6 +8,7 @@ import ReactFlow, {
   useEdgesState,
 } from "reactflow";
 import "reactflow/dist/style.css";
+import img from "../images/logo.png";
 
 import {
   nodes as initialNodes,
@@ -16,7 +17,6 @@ import {
 import { handleGptApi } from "./gptApi";
 import TextUpdaterNode from "./TextUpdaterNode";
 import { wrapInArray } from "./utils";
-
 const onInit = (reactFlowInstance) =>
   console.log("flow loaded:", reactFlowInstance);
 // const nodeTypes = { textUpdater: () => <TextUpdaterNode /> };
@@ -104,45 +104,49 @@ const OverviewFlow = () => {
   };
 
   return (
-    <ReactFlow
-      nodes={nodes}
-      edges={edges}
-      // onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
-      onConnect={onConnect}
-      onInit={onInit}
-      fitView
-      nodeTypes={{
-        textUpdater: (node) => (
-          <TextUpdaterNode
-            node={node}
-            apiHandler={apiHandler}
-            loading={loading}
-            allNodes={nodes}
-          />
-        ),
-      }}
-      attributionPosition="top-right"
-    >
-      <MiniMap
-        nodeStrokeColor={(n) => {
-          if (n.style?.background) return n.style.background;
-          if (n.type === "input") return "#0041d0";
-          if (n.type === "output") return "#ff0072";
-          if (n.type === "default") return "#1a192b";
-
-          return "#eee";
+    <>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        // onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onInit={onInit}
+        fitView
+        nodeTypes={{
+          textUpdater: (node) => (
+            <TextUpdaterNode
+              node={node}
+              apiHandler={apiHandler}
+              loading={loading}
+              allNodes={nodes}
+            />
+          ),
         }}
-        nodeColor={(n) => {
-          if (n.style?.background) return n.style.background;
+        attributionPosition="top-right"
+      >
+        <img src={img} />
 
-          return "#F1F0EE";
-        }}
-        nodeBorderRadius={2}
-      />
-      <Controls />
-      <Background color="#aaa" gap={20} />
-    </ReactFlow>
+        <MiniMap
+          nodeStrokeColor={(n) => {
+            if (n.style?.background) return n.style.background;
+            if (n.type === "input") return "#0041d0";
+            if (n.type === "output") return "#ff0072";
+            if (n.type === "default") return "#1a192b";
+
+            return "#eee";
+          }}
+          nodeColor={(n) => {
+            if (n.style?.background) return n.style.background;
+
+            return "#F1F0EE";
+          }}
+          nodeBorderRadius={2}
+        />
+        <Controls />
+        <Background color="#aaa" gap={20} />
+      </ReactFlow>
+    </>
   );
 };
 

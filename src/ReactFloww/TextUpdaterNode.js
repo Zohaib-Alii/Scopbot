@@ -47,20 +47,22 @@ function TextUpdaterNode({
               </div>
             ))
           : null}
-        <Button
-          key={node.id}
-          onClick={() =>
-            apiHandler({
-              inputData,
-              node,
-              heading: node?.data?.heading,
-              inputType: firstNode ? "Epic" : "features",
-            })
-          }
-          loading={loading}
-        >
-          Generate {firstNode ? "Epic" : scope[findNode.itration]}
-        </Button>
+        {(firstNode || scope[findNode.itration]) && (
+          <Button
+            key={node.id}
+            onClick={() =>
+              apiHandler({
+                inputData,
+                node,
+                heading: node?.data?.heading,
+                inputType: firstNode ? "Epic" : scope[findNode.itration],
+              })
+            }
+            loading={loading}
+          >
+            Generate {firstNode ? "Epic" : scope[findNode.itration]}
+          </Button>
+        )}
 
         <Handle
           type="source"

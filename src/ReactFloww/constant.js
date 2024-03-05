@@ -1,1 +1,1 @@
-export const scope = ["epic", "feature", "task"];
+export const scope = ["Epic", "Feature", "User Story", "Task"];
