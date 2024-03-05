@@ -9,7 +9,8 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import img from "../images/logo.png";
-
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import MyDocument from "./SRSDocument";
 import {
   nodes as initialNodes,
   edges as initialEdges,
@@ -23,8 +24,10 @@ const onInit = (reactFlowInstance) =>
 // const nodeTypes = { textUpdater: () => <TextUpdaterNode /> };
 let itration = 0;
 const OverviewFlow = () => {
+  const [generate, setGenerateSRS] = useState(false);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [summary, setSummary] = useState([]);
   const [loading, setLoading] = useState(false);
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
@@ -38,10 +41,10 @@ const OverviewFlow = () => {
     console.log("createNodes func call", "gpt res", gptResponse);
     const newNodes = [];
     const newEdges = [];
+
     // Calculate the x-coordinate for the next node with an increment of 300 pixels
     let nextX = clickedNodePosition.x - 400; // Start with 300 pixels to the right of the clicked node
     let nodesLength = nodes.length;
-    // let gptUpdatedRes = wrapInArray(gptResponse);
     gptResponse.details.forEach((res, ind) => {
       const length = nodes.length + 3;
       const newNode = {
@@ -98,9 +101,10 @@ const OverviewFlow = () => {
       scope,
     });
     const updatedRes = JSON.parse(res).epics || JSON.parse(res);
+    setSummary((prev) => [...prev, updatedRes.summary]);
     createNodes({ gptResponse: updatedRes, nodeId });
   };
-
+  console.log("summary", summary, generate);
   return (
     <>
       <ReactFlow
@@ -150,7 +154,23 @@ const OverviewFlow = () => {
         <Controls />
         <Background color="#aaa" gap={20} />
       </ReactFlow>
-      <Button onClick={handleGenrateSrs}>Generate SRS</Button>
+      <Button
+        onClick={() =>
+          handleGenrateSrs({ summary, setGenerateSRS, setSummary })
+        }
+      >
+        Generate SRS
+      </Button>
+      {generate ? (
+        <PDFDownloadLink
+          document={<MyDocument summary={summary} />}
+          fileName="SRS.pdf"
+        >
+          {({ blob, url, loading, error }) =>
+            loading ? "Loading document..." : "Download now!"
+          }
+        </PDFDownloadLink>
+      ) : null}
     </>
   );
 };

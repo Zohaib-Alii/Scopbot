@@ -18,7 +18,6 @@ function TextUpdaterNode({
   };
   const firstNode = node.id == "node-0";
   const findNode = allNodes.find((no) => no.id == node.id);
-  console.log("node", node, node.itration, findNode);
   return (
     <div className="main">
       <div className={firstNode ? "firsthead" : "main-headings"}>
