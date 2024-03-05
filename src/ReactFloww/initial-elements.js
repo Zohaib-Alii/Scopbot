@@ -4,6 +4,7 @@ export const nodes = [
     type: "textUpdater",
     position: { x: 0, y: 0 },
     data: { heading: "Scope Bot", value: ["task managemnt system "] },
+    itration: 0,
   },
 ];
 export const edges = [

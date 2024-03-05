@@ -24,6 +24,7 @@ let itration = 0;
 const OverviewFlow = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [loading, setLoading] = useState(false);
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge(params, eds)),
     [setEdges]
@@ -43,6 +44,7 @@ const OverviewFlow = () => {
     gptUpdatedRes.forEach((res, ind) => {
       const length = nodes.length + 3;
       const newNode = {
+        itration: itration + 1,
         id: `node-${nodesLength > 1 ? nodesLength + ind : ind + 1}`,
         type: "textUpdater",
         targetPosition: "top",
@@ -54,7 +56,7 @@ const OverviewFlow = () => {
       };
 
       const newEdge = {
-        // id: `${ind}-edge`, // Assigning a unique ID for each edge
+        // id: `${ind}-edge`,
         id: `node-${nodesLength > 1 ? nodesLength + ind : ind + 1}`,
         source: nodeId,
         target: `node-${nodesLength > 1 ? nodesLength + ind : ind + 1}`,
@@ -62,7 +64,7 @@ const OverviewFlow = () => {
         type: "smoothstep",
         animated: true,
         style: { stroke: "brown" },
-        // type: "step",
+        // type: "step",.
       };
 
       newNodes.push(newNode);
@@ -76,16 +78,27 @@ const OverviewFlow = () => {
     console.log("updatedNodes", updatedNodes, updatedEdges);
     setNodes(updatedNodes);
     setEdges(updatedEdges);
+    setLoading(false);
   };
 
-  const apiHandler = async ({ inputData, nodeId }) => {
+  const apiHandler = async ({ inputData, node, heading, inputType }) => {
+    debugger;
+    const { id: nodeId } = node;
+    setLoading(true);
+    let firstNode = nodeId === "node-0";
     // update the first node content
     console.log("api handler click");
-    if (nodeId === "node-0" && inputData) {
+    if (firstNode && inputData) {
       nodes[0].data.value = [inputData];
       setNodes([...nodes]);
     }
-    const res = await handleGptApi(inputData);
+
+    const res = await handleGptApi({
+      inputData,
+      firstNode,
+      selectedNode: node,
+      inputType,
+    });
     const updatedRes = JSON.parse(res).epics || JSON.parse(res);
     createNodes({ gptResponse: updatedRes, nodeId });
   };
@@ -101,7 +114,12 @@ const OverviewFlow = () => {
       fitView
       nodeTypes={{
         textUpdater: (node) => (
-          <TextUpdaterNode node={node} apiHandler={apiHandler} />
+          <TextUpdaterNode
+            node={node}
+            apiHandler={apiHandler}
+            loading={loading}
+            allNodes={nodes}
+          />
         ),
       }}
       attributionPosition="top-right"

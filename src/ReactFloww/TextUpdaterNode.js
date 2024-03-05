@@ -2,18 +2,28 @@ import { useState } from "react";
 import { Handle, Position } from "reactflow";
 import "./styles.css";
 import { Button, Input } from "antd";
+import { scope } from "./constant";
 
-function TextUpdaterNode({ isConnectable, node, apiHandler }) {
+function TextUpdaterNode({
+  isConnectable,
+  node,
+  apiHandler,
+  loading,
+  allNodes,
+}) {
   const [inputData, setInputData] = useState("");
-  // const [loading, setLoading] = useState(false);
 
   const handleTextChange = (evt) => {
     setInputData(evt.target.value);
   };
   const firstNode = node.id == "node-0";
+  const findNode = allNodes.find((no) => no.id == node.id);
+  console.log("node", node, node.itration, findNode);
   return (
     <div className="main">
-      <div className="main-headings">{node?.data?.heading}</div>
+      <div className={firstNode ? "firsthead" : "main-headings"}>
+        {node?.data?.heading}
+      </div>
       <div className="text-updater-node wrapper">
         {!firstNode && (
           <Handle
@@ -24,24 +34,32 @@ function TextUpdaterNode({ isConnectable, node, apiHandler }) {
         )}
         {node
           ? (node?.data?.value || []).map((val, ind) => (
-              <div key={ind} className="mainInput">
+              <div key={ind} className="mainInput manrope">
                 <Input.TextArea
                   rows={3}
                   key={node?.id}
                   defaultValue={val || "placeholder"}
                   name="text"
                   onChange={handleTextChange}
-                  // className="nodrag"x
+                  className="manrope"
+                  // className="nodrag"
                 />
               </div>
             ))
           : null}
         <Button
           key={node.id}
-          onClick={() => apiHandler({ inputData, nodeId: node.id })}
-          // loading={loading}
+          onClick={() =>
+            apiHandler({
+              inputData,
+              node,
+              heading: node?.data?.heading,
+              inputType: firstNode ? "Epic" : "features",
+            })
+          }
+          loading={loading}
         >
-          Generate Response
+          Generate {firstNode ? "Epic" : scope[findNode.itration]}
         </Button>
 
         <Handle
